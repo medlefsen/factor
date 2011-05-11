@@ -4,7 +4,8 @@ USING: accessors alien.c-types alien.parser arrays ascii
 classes.parser classes.struct combinators combinators.short-circuit
 gobject-introspection.repository gobject-introspection.types kernel
 locals make math.parser namespaces parser sequences
-splitting.monotonic vocabs.parser words words.constant ;
+splitting.monotonic vocabs.parser words words.constant
+help help.markup ;
 IN: gobject-introspection.ffi
 
 : def-c-type ( c-type-name base-c-type -- )
@@ -131,13 +132,23 @@ M: none-type return-type>c-type drop void ;
 : parameter-names&types ( callable -- names types )
     [ [ parameter-c-type ] map ] [ [ parameter-name ] map ] bi ;
 
+:: def-doc ( doc word -- )
+    doc
+    [ { { $description doc } } word set-word-help ] when ;
+
+:: (def-function) ( function quot -- ) 
+    function quot call
+    make-function [ dup :> word ] 2dip
+    define-inline
+    function doc>> word def-doc ; inline
+
 : def-function ( function --  )
-    {
+    [ {
         [ return>> return-c-type ]
         [ identifier>> ]
         [ drop current-library get ]
         [ ?suffix-parameters-with-error parameter-names&types ]
-    } cleave make-function define-inline ;
+    } cleave ] (def-function) ;
 
 : def-functions ( functions -- )
     [ def-function ] each ;
@@ -164,7 +175,7 @@ M: type type>data-type
     } cleave ;
 
 :: def-method ( method type --  )
-    method {
+    method [ {
         [ return>> return-c-type ]
         [ identifier>> ]
         [ drop current-library get ]
@@ -173,7 +184,7 @@ M: type type>data-type
             type type>parameter prefix
             parameter-names&types
         ]
-    } cleave make-function define-inline ;
+    } cleave ] (def-function) ;
 
 : def-methods ( methods type -- )
     [ def-method ] curry each ;

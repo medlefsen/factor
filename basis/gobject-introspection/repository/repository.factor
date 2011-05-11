@@ -98,7 +98,8 @@ TUPLE: function
     identifier
     return
     parameters
-    throws? ;
+    throws? 
+    doc ;
 
 TUPLE: callback < type
     return

@@ -111,6 +111,7 @@ CONSTANT: type-tags
     [ function new ] dip {
         [ "name" attr >>name ]
         [ "identifier" attr >>identifier ]
+        [ "doc" tag-named [ children>string ] [ f ] if* >>doc ]
         [ load-callable ]
         [ "throws" attr "1" = >>throws? ]
     } cleave ;
